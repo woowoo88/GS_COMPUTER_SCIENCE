@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mission Control AI - Simulacao</title>
+  <title>Mission Control AI - Simulação</title>
   <style>
     :root {
       color-scheme: dark;
@@ -43,9 +43,18 @@
     button.switch.on { background: #145d43; }
     button.switch.on::after { content: "1"; transform: translateX(30px); background: var(--green); }
     .alarm { min-height: 210px; display: grid; place-items: center; text-align: center; border-radius: 16px; border: 1px solid var(--line); background: #071321; transition: .25s; }
-    .lamp { width: 92px; height: 92px; margin: 0 auto 16px; border-radius: 50%; background: #314158; box-shadow: inset 0 0 24px #000b; transition: .25s; }
+    .lamp {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px var(--green), 0 0 48px #44e38a70;
+      transition: .25s;
+      animation: normal-pulse 1.35s ease-in-out infinite;
+    }
     .alarm.active { border-color: var(--red); background: #2b1018; }
-    .alarm.active .lamp { background: var(--red); box-shadow: 0 0 22px var(--red), 0 0 70px #ff536488; }
+    .alarm.active .lamp { background: var(--red); box-shadow: 0 0 22px var(--red), 0 0 70px #ff536488; animation: none; }
     .alarm strong { display: block; font-size: 1.4rem; }
     .alarm span { color: var(--muted); }
     .signals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
@@ -60,7 +69,15 @@
     th { position: sticky; top: 0; background: #142941; color: var(--cyan); }
     tr.alert td { background: #34141c; color: #ffdce0; }
     tr.current td { outline: 1px solid var(--amber); outline-offset: -1px; }
-    footer { color: var(--muted); margin-top: 22px; font-size: .8rem; text-align: center; }
+    footer { color: var(--muted); margin-top: 22px; font-size: .8rem; text-align: center; line-height: 1.7; }
+    .authors { color: var(--text); }
+    @keyframes normal-pulse {
+      0%, 100% { opacity: .42; transform: scale(.92); box-shadow: 0 0 10px #44e38a55; }
+      50% { opacity: 1; transform: scale(1); box-shadow: 0 0 24px var(--green), 0 0 64px #44e38a88; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .lamp { animation: none; }
+    }
     @media (max-width: 820px) {
       header { display: block; }
       .formula { display: inline-block; margin-top: 16px; white-space: normal; }
@@ -72,9 +89,9 @@
 <main>
   <header>
     <div>
-      <div class="eyebrow">SISTEMA DE LOGICA DIGITAL</div>
+      <div class="eyebrow">SISTEMA DE LÓGICA DIGITAL</div>
       <h1>Mission Control AI</h1>
-      <p>Acione as condicoes de risco e observe, em tempo real, os sinais intermediarios e o alerta principal da missao.</p>
+      <p>Acione as condições de risco e observe, em tempo real, os sinais intermediários e o alerta principal da missão.</p>
     </div>
     <div class="formula">X = AC + EF + D(B + NOT(A))</div>
   </header>
@@ -85,12 +102,12 @@
       <div class="inputs" id="inputs"></div>
     </div>
     <div class="panel">
-      <h2>Saida e sinais internos</h2>
+      <h2>Saída e sinais internos</h2>
       <div class="alarm" id="alarm">
         <div>
           <div class="lamp"></div>
-          <strong id="alarmTitle">X = 0 · OPERACAO NORMAL</strong>
-          <span id="alarmText">Nenhuma regra critica foi satisfeita.</span>
+          <strong id="alarmTitle">X = 0 · OPERAÇÃO NORMAL</strong>
+          <span id="alarmText">Nenhuma regra crítica foi satisfeita.</span>
         </div>
       </div>
       <div class="signals">
@@ -104,7 +121,7 @@
 
   <section class="panel table-panel">
     <h2>Tabela verdade completa</h2>
-    <p class="legend">A linha da configuracao atual recebe contorno amarelo. Linhas vermelhas representam X = 1.</p>
+    <p class="legend">A linha da configuração atual recebe contorno amarelo. As linhas vermelhas representam X = 1.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>#</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>X</th><th>Estado</th></tr></thead>
@@ -112,16 +129,19 @@
       </table>
     </div>
   </section>
-  <footer>Mission Control AI · Ciencia da Computacao · 1CCPF</footer>
+  <footer>
+    <div>Mission Control AI · Ciência da Computação · 1CCPF</div>
+    <div class="authors">Angela Takezawa · RM: 570797 | Rodrigo Zambelle · RM: 570425 | Rodrigo Zarzar · RM: 572454</div>
+  </footer>
 </main>
 <script>
   const definitions = [
-    ["A", "Falha de comunicacao", "1 = comunicacao com a nave indisponivel"],
-    ["B", "Temperatura interna critica", "1 = temperatura fora da faixa segura"],
-    ["C", "Baixo nivel de energia", "1 = reserva energetica insuficiente"],
-    ["D", "Falha em modulo operacional", "1 = modulo essencial com defeito"],
-    ["E", "Perda de estabilidade", "1 = orientacao ou atitude comprometida"],
-    ["F", "Alerta da inteligencia artificial", "1 = monitor inteligente detectou risco"]
+    ["A", "Falha de comunicação", "1 = comunicação com a nave indisponível"],
+    ["B", "Temperatura interna crítica", "1 = temperatura fora da faixa segura"],
+    ["C", "Baixo nível de energia", "1 = reserva energética insuficiente"],
+    ["D", "Falha em módulo operacional", "1 = módulo essencial com defeito"],
+    ["E", "Perda de estabilidade", "1 = orientação ou atitude comprometida"],
+    ["F", "Alerta da inteligência artificial", "1 = monitor inteligente detectou risco"]
   ];
   const state = Object.fromEntries(definitions.map(([key]) => [key, 0]));
   const inputs = document.getElementById("inputs");
@@ -149,8 +169,8 @@
     const r = evaluate(state);
     const alarm = document.getElementById("alarm");
     alarm.classList.toggle("active", r.x === 1);
-    document.getElementById("alarmTitle").textContent = r.x ? "X = 1 · ALERTA PRINCIPAL" : "X = 0 · OPERACAO NORMAL";
-    document.getElementById("alarmText").textContent = r.x ? "Uma ou mais regras criticas foram satisfeitas." : "Nenhuma regra critica foi satisfeita.";
+    document.getElementById("alarmTitle").textContent = r.x ? "X = 1 · ALERTA PRINCIPAL" : "X = 0 · OPERAÇÃO NORMAL";
+    document.getElementById("alarmText").textContent = r.x ? "Uma ou mais regras críticas foram satisfeitas." : "Nenhuma regra crítica foi satisfeita.";
     [["s1", r.ac], ["s2", r.ef], ["s3", r.bNotA], ["s4", r.dRisk]].forEach(([id, value]) => {
       const el = document.getElementById(id);
       el.querySelector("b").textContent = value;
