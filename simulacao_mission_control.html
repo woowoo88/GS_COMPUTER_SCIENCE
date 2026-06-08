@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mission Control AI - Simulacao</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #0d1b2e;
+      --line: #243a55;
+      --text: #e8f0fa;
+      --muted: #9cb0c8;
+      --cyan: #35d6ed;
+      --green: #44e38a;
+      --red: #ff5364;
+      --amber: #ffc857;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: radial-gradient(circle at top, #132d4d 0, var(--bg) 42%);
+      color: var(--text);
+    }
+    main { width: min(1180px, 94vw); margin: 0 auto; padding: 42px 0 70px; }
+    header { display: flex; justify-content: space-between; gap: 28px; align-items: end; margin-bottom: 26px; }
+    .eyebrow { color: var(--cyan); font-weight: 800; letter-spacing: .18em; font-size: .78rem; }
+    h1 { margin: 8px 0 6px; font-size: clamp(2rem, 5vw, 4rem); line-height: .98; }
+    header p { margin: 0; color: var(--muted); max-width: 680px; }
+    .formula { padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: #091729; color: var(--cyan); font-family: Consolas, monospace; white-space: nowrap; }
+    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 20px; }
+    .panel { background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: 0 18px 60px #0006; }
+    h2 { margin: 0 0 16px; font-size: 1.1rem; letter-spacing: .03em; }
+    .inputs { display: grid; gap: 10px; }
+    .input-row { display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #091625; }
+    .var { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; background: #17314d; color: var(--cyan); font-weight: 900; }
+    .desc strong { display: block; font-size: .94rem; }
+    .desc span { color: var(--muted); font-size: .8rem; }
+    button.switch { width: 64px; height: 34px; border: 0; border-radius: 20px; background: #29394d; padding: 4px; cursor: pointer; transition: .2s; }
+    button.switch::after { content: "0"; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #718197; color: #07111f; font-weight: 900; transition: .2s; }
+    button.switch.on { background: #145d43; }
+    button.switch.on::after { content: "1"; transform: translateX(30px); background: var(--green); }
+    .alarm { min-height: 210px; display: grid; place-items: center; text-align: center; border-radius: 16px; border: 1px solid var(--line); background: #071321; transition: .25s; }
+    .lamp { width: 92px; height: 92px; margin: 0 auto 16px; border-radius: 50%; background: #314158; box-shadow: inset 0 0 24px #000b; transition: .25s; }
+    .alarm.active { border-color: var(--red); background: #2b1018; }
+    .alarm.active .lamp { background: var(--red); box-shadow: 0 0 22px var(--red), 0 0 70px #ff536488; }
+    .alarm strong { display: block; font-size: 1.4rem; }
+    .alarm span { color: var(--muted); }
+    .signals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+    .signal { border: 1px solid var(--line); border-radius: 10px; text-align: center; padding: 10px 4px; color: var(--muted); font-size: .76rem; }
+    .signal b { display: block; margin-top: 5px; font-size: 1.2rem; color: var(--text); }
+    .signal.hot { border-color: var(--amber); background: #362b12; }
+    .table-panel { margin-top: 20px; overflow: hidden; }
+    .legend { color: var(--muted); margin: -8px 0 14px; font-size: .86rem; }
+    .table-wrap { max-height: 440px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-family: Consolas, monospace; }
+    th, td { padding: 8px 12px; border-bottom: 1px solid #1c3048; text-align: center; }
+    th { position: sticky; top: 0; background: #142941; color: var(--cyan); }
+    tr.alert td { background: #34141c; color: #ffdce0; }
+    tr.current td { outline: 1px solid var(--amber); outline-offset: -1px; }
+    footer { color: var(--muted); margin-top: 22px; font-size: .8rem; text-align: center; }
+    @media (max-width: 820px) {
+      header { display: block; }
+      .formula { display: inline-block; margin-top: 16px; white-space: normal; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="eyebrow">SISTEMA DE LOGICA DIGITAL</div>
+      <h1>Mission Control AI</h1>
+      <p>Acione as condicoes de risco e observe, em tempo real, os sinais intermediarios e o alerta principal da missao.</p>
+    </div>
+    <div class="formula">X = AC + EF + D(B + NOT(A))</div>
+  </header>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Entradas digitais</h2>
+      <div class="inputs" id="inputs"></div>
+    </div>
+    <div class="panel">
+      <h2>Saida e sinais internos</h2>
+      <div class="alarm" id="alarm">
+        <div>
+          <div class="lamp"></div>
+          <strong id="alarmTitle">X = 0 · OPERACAO NORMAL</strong>
+          <span id="alarmText">Nenhuma regra critica foi satisfeita.</span>
+        </div>
+      </div>
+      <div class="signals">
+        <div class="signal" id="s1">AC<b>0</b></div>
+        <div class="signal" id="s2">EF<b>0</b></div>
+        <div class="signal" id="s3">B + NOT(A)<b>0</b></div>
+        <div class="signal" id="s4">D(B + NOT(A))<b>0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel table-panel">
+    <h2>Tabela verdade completa</h2>
+    <p class="legend">A linha da configuracao atual recebe contorno amarelo. Linhas vermelhas representam X = 1.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>X</th><th>Estado</th></tr></thead>
+        <tbody id="truthBody"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>Mission Control AI · Ciencia da Computacao · 1CCPF</footer>
+</main>
+<script>
+  const definitions = [
+    ["A", "Falha de comunicacao", "1 = comunicacao com a nave indisponivel"],
+    ["B", "Temperatura interna critica", "1 = temperatura fora da faixa segura"],
+    ["C", "Baixo nivel de energia", "1 = reserva energetica insuficiente"],
+    ["D", "Falha em modulo operacional", "1 = modulo essencial com defeito"],
+    ["E", "Perda de estabilidade", "1 = orientacao ou atitude comprometida"],
+    ["F", "Alerta da inteligencia artificial", "1 = monitor inteligente detectou risco"]
+  ];
+  const state = Object.fromEntries(definitions.map(([key]) => [key, 0]));
+  const inputs = document.getElementById("inputs");
+  definitions.forEach(([key, title, subtitle]) => {
+    const row = document.createElement("div");
+    row.className = "input-row";
+    row.innerHTML = `<div class="var">${key}</div><div class="desc"><strong>${title}</strong><span>${subtitle}</span></div><button class="switch" aria-label="Alternar ${key}" data-key="${key}"></button>`;
+    inputs.appendChild(row);
+  });
+
+  function evaluate(v) {
+    const ac = v.A && v.C;
+    const ef = v.E && v.F;
+    const bNotA = v.B || !v.A;
+    const dRisk = v.D && bNotA;
+    return { ac: +ac, ef: +ef, bNotA: +bNotA, dRisk: +dRisk, x: +(ac || ef || dRisk) };
+  }
+
+  function rowIndex(v) {
+    return definitions.reduce((n, [key]) => (n << 1) | v[key], 0);
+  }
+
+  function update() {
+    document.querySelectorAll(".switch").forEach(button => button.classList.toggle("on", state[button.dataset.key] === 1));
+    const r = evaluate(state);
+    const alarm = document.getElementById("alarm");
+    alarm.classList.toggle("active", r.x === 1);
+    document.getElementById("alarmTitle").textContent = r.x ? "X = 1 · ALERTA PRINCIPAL" : "X = 0 · OPERACAO NORMAL";
+    document.getElementById("alarmText").textContent = r.x ? "Uma ou mais regras criticas foram satisfeitas." : "Nenhuma regra critica foi satisfeita.";
+    [["s1", r.ac], ["s2", r.ef], ["s3", r.bNotA], ["s4", r.dRisk]].forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      el.querySelector("b").textContent = value;
+      el.classList.toggle("hot", value === 1);
+    });
+    document.querySelectorAll("#truthBody tr").forEach((tr, i) => tr.classList.toggle("current", i === rowIndex(state)));
+  }
+
+  document.addEventListener("click", event => {
+    const button = event.target.closest(".switch");
+    if (!button) return;
+    state[button.dataset.key] ^= 1;
+    update();
+  });
+
+  const tbody = document.getElementById("truthBody");
+  for (let i = 0; i < 64; i++) {
+    const bits = i.toString(2).padStart(6, "0").split("").map(Number);
+    const v = Object.fromEntries(definitions.map(([key], j) => [key, bits[j]]));
+    const x = evaluate(v).x;
+    const tr = document.createElement("tr");
+    if (x) tr.className = "alert";
+    tr.innerHTML = `<td>${i + 1}</td>${bits.map(bit => `<td>${bit}</td>`).join("")}<td>${x}</td><td>${x ? "ALERTA" : "NORMAL"}</td>`;
+    tbody.appendChild(tr);
+  }
+  update();
+</script>
+</body>
+</html>
