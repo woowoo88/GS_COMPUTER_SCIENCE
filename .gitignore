@@ -1,4 +1,7 @@
 ~$*.docx
+*.docx
+gerar_relatorio.py
+circuito_logico.png
 __pycache__/
 *.pyc
 .DS_Store
